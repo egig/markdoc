@@ -1,0 +1,33 @@
+{
+	"name": "egig/markdoc",
+    "type": "application",
+    "description": "Markdown document to HTML generator",
+    "keywords": ["markdown", "generator" ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "egig",
+            "email": "egigundari@gmail.com"
+        }
+    ],
+   "require": {
+   		"php": ">=5.3.0",
+		"symfony/filesystem": "2.4.*",
+		"symfony/finder": "2.4.*",
+		"symfony/console": "2.4.*",
+		"twig/twig": "1.14.*",
+		"michelf/php-markdown": "1.4.*"
+	},
+
+	"config": {
+		"vendor-dir": "vendor",
+		"preferred-install": "dist"
+	},
+
+	"minimum-stability": "dev",
+	"extra": {
+        "branch-alias": {
+            "dev-master": "0.1-dev"
+        }
+    }
+}

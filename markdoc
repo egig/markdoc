@@ -1,0 +1,89 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * -----------------------------------------------------------------------------
+ * Setup Required and Loader
+ * -----------------------------------------------------------------------------
+ *
+ * First we'll include required config file, of course, then setup the handsome
+ * psr4 composer autoloader manually, seriously, nobody use comppser
+ * dump-autoload command dozen times.
+ */
+
+$config = require 'config.php';
+$loader = require __DIR__ . "/vendor/autoload.php";
+$loader->addPsr4('Pharkd\\Commands\\', __DIR__ . '/commands');
+
+
+/**
+ * -----------------------------------------------------------------------------
+ * Prepare Namespace
+ * -----------------------------------------------------------------------------
+ *
+ * First we'll list here those namespace being used by the application. So we
+ * can clearly read and manage it. We use alias for 'Application' since
+ * it's console application indeed. Expressiveness.
+ */
+use Symfony\Component\Console\Application as ConsoleApplication;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
+use Michelf\Markdown;
+use Michelf\MarkdownInterface;
+
+use Egig\Markdoc\Commands\GenerateCommand;
+
+
+/**
+ * -----------------------------------------------------------------------------
+ * Setup Templating
+ * -----------------------------------------------------------------------------
+ *
+ * We'll use to twig loader, String if no template defined, Standard Filesystem
+ * Otherwise. Then we'll set autoescape to false since what we're going to do
+ * just wrap generated html with template.
+ */
+
+$loaderFilesystem = new Twig_Loader_Filesystem($config['template.dir']);
+$loaderString = new Twig_Loader_String();
+
+$loader = new Twig_Loader_Chain(array($loaderFilesystem, $loaderString));
+
+$twig = new Twig_Environment($loader, array(
+    'autoescape' => false
+));
+
+$template = $twig->loadTemplate('{{ content }}');
+
+if( $tpl = $config['template'])
+	$template = $twig->loadTemplate( $tpl );
+
+/**
+ * -----------------------------------------------------------------------------
+ * Setup Generate Command
+ * -----------------------------------------------------------------------------
+ *
+ * This application just intends to be small application. We'll just create one
+ * command: generate.
+ */
+
+$command = new GenerateCommand(
+	new Filesystem(),
+	new Finder(),
+	$template,
+	new Markdown()
+);
+
+$command->setupOptions( $config );
+
+/**
+ * -----------------------------------------------------------------------------
+ * Setup App and Run
+ * -----------------------------------------------------------------------------
+ *
+ * Once we had it all, simply release it.
+ */
+
+$application = new ConsoleApplication();
+$application->add( $command );
+$application->run();
